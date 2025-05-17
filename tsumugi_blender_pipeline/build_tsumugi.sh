@@ -2,7 +2,7 @@
 set -e
 
 # 実行ファイル・ベースディレクトリ
-BLENDER_BIN="/Applications/Blender.app/Contents/MacOS/Blender"
+BLENDER_BIN="blender"
 BASE="$(cd "$(dirname "$0")" && pwd)"
 unset PYTHONHOME PYTHONPATH
 
