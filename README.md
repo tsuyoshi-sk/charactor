@@ -1,137 +1,69 @@
-# Charactor - サッカー育成美少女ゲームキャラクター制作パイプライン
+# README.md
 
-## 環境セットアップ
+## プロジェクト概要
 
-### リポジトリの準備
+このリポジトリは、Blender を用いたキャラクターパイプラインの自動化を目的としています。
+- ベースメッシュ生成 (gen_base.py)
+- メタリグ追加 → Rigify リグ生成 (pipeline.py + rigging.py)
+- ディテール追加 (gen_detail.py)
+- アニメーション生成 (animation.py)
+- FBX/GLB 形式でのエクスポート
+
+各ステップは CLI から実行可能で、一度セットアップすれば異なる身長・体格のキャラを100体以上簡単に生成できます。
+
+## ディレクトリ構成
+
+```
+base_assets/           # 各種アセット (.blend) を格納
+  ├ meta_rigs.blend    # Meta-Rig プリセット (Human, Bird...)
+  └ motions.blend      # Idle, Walk, Run などアクションテンプレート
+models/                # パイプライン実行後に出力される .blend
+scripts/               # Python スクリプト群
+  ├ gen_base.py        # 素体メッシュ生成スクリプト
+  ├ gen_detail.py      # ディテール付与スクリプト
+  ├ model_setup.py     # 高さ調整など共通処理
+  ├ rigging.py         # Rigify リグ生成
+  ├ animation.py       # アニメーション (Idle, Walk, Run, Shoot)
+  └ pipeline.py        # 上記をまとめたパイプライン実行用
+assets/                # 最終出力 (FBX, GLB) 保存先
+```
+
+## 必要要件
+1. Blender 4.4.3
+2. Git LFS（*.blend, *.fbx, *.glb を大容量管理）
+3. Blender Preferences → Add-ons で Rigify を有効化
+
+## セットアップ
+
 ```bash
-# リポジトリのクローン
+# Git レポジトリをクローン
 git clone git@github.com:tsuyoshi-sk/charactor.git
 cd charactor
 
-# Git LFS のセットアップ
-git lfs install
-git checkout main
-```
-
-### Blender のインストール
-- **バージョン要件**: Blender 4.4.3
-- 下記リンクから各OSに合わせてダウンロード・インストールしてください
-  - [Windows](https://download.blender.org/release/Blender4.4/blender-4.4.3-windows-x64.msi)
-  - [macOS](https://download.blender.org/release/Blender4.4/blender-4.4.3-macos-arm64.dmg)
-  - [Linux](https://download.blender.org/release/Blender4.4/blender-4.4.3-linux-x64.tar.xz)
-
-#### Rigifyアドオンの有効化
-1. Blenderを起動
-2. Edit > Preferences > Add-ons に移動
-3. 検索欄に「Rigify」と入力
-4. 「Rigging: Rigify」にチェックを入れる
-5. Blenderを再起動
-
-### Python 環境
-- システムデフォルトのPythonで動作します
-- 必要に応じて仮想環境を作成してください
-
-## 各ファイルの役割
-
-### .blendファイルの説明
-
-- **base_assets/meta_rigs/meta_rigs.blend**
-  - Blender標準の「Meta-Rig」プリセットが格納されています
-  - pipeline.pyの`bpy.ops.object.armature_human_metarig_add()`でヒューマンメタリグを自動追加するときに参照されます
-
-- **base_assets/motions/motions.blend**
-  - 「Idle」「Walk」「Run」などのアクションが格納されています
-  - Asset Browser経由で読み込めるようになっています
-
-- **tsumugi_blender_pipeline/models/base_humanoid.blend**
-  - ジオメトリ（CylinderやSphereで組んだ素体メッシュ）のみを含むシンプルなファイル
-  - Rig（アーマチュア）は含まれておらず、パイプライン実行時にメタリグを追加してからRigify生成します
-
-## フォルダ構成
-```
-charactor/
-├─ base_assets/         ← アセット格納用ライブラリ .blend
-│   ├─ meta_rigs/       ← Meta-Rig（Human, Bird…）
-│   ├─ motions/         ← Idle/Walk/Run などのアクション .blend
-│   └─ …                ← 衣装・マテリアル・ウェイトなど
-├─ tsumugi_blender_pipeline/
-│   ├─ models/          ← ベース & リグ済み .blend
-│   ├─ assets/          ← 出力 FBX/GLB
-│   └─ scripts/         ← pipeline.py, animation.py など
-└─ README.md, .gitignore, .gitattributes
-```
-
-## 初回動作チェック手順
-
-1. Meta-Rigの確認
-```bash
-# Blenderでメタリグを開く
-blender base_assets/meta_rigs/meta_rigs.blend
-```
-- Human メタリグが存在することを確認
-
-2. モーションの確認
-```bash
-# Blenderでモーションを開く
-blender base_assets/motions/motions.blend
-```
-- Asset Browser にて "Idle", "Walk", "Run" が登録済みかチェック
-- Asset Browserの表示方法：Blenderの上部メニューから「Window」→「Asset Browser」
-
-3. パイプラインの実行
-```bash
-# Ubuntuの場合
-cd tsumugi_blender_pipeline
-chmod +x build_tsumugi.sh
-./build_tsumugi.sh
-
-# macOSの場合
-cd tsumugi_blender_pipeline
-chmod +x build_tsumugi.sh
-./build_tsumugi.sh
-
-# Windowsの場合
-cd tsumugi_blender_pipeline
-# PowerShellで以下のコマンドを実行
-# blender --background --python scripts/pipeline.py -- --model models/base_humanoid.blend --height 1.58 --fbx assets/fbx/tsumugi.fbx --glb assets/glb/tsumugi.glb
-```
-
-4. 結果の確認
-- `tsumugi_blender_pipeline/assets/fbx/tsumugi.fbx` と `tsumugi_blender_pipeline/assets/glb/tsumugi.glb` が生成されていることを確認
-
-## よくあるトラブルシュート
-
-### Git LFS 初期設定
-```bash
-# Git LFSがインストールされていない場合
-apt-get install git-lfs  # Ubuntu/Debian
-brew install git-lfs     # macOS
-# Windowsはhttps://git-lfs.com/ からダウンロード
-
-# リポジトリ内でLFSを有効化
+# LFS オブジェクトを取得
 git lfs install
 git lfs pull
 ```
 
-### Blenderのバージョン不一致
-- エラーメッセージ: `Blender version must be at least 4.4.3`
-- 解決策: Blender 4.4.3 をインストールして、`build_tsumugi.sh` 内の `BLENDER_BIN` パスを正しく設定
+## パイプライン実行例
 
-### bpy.ops.pose.rigify_generate() エラー
-- エラーメッセージ: `Rigify生成エラー: AttributeError: 'Operator' object has no attribute 'generate'`
-- 解決策:
-  1. Blender を起動し、Edit > Preferences > Add-ons に移動
-  2. "Rigify" アドオンを検索して有効化
-  3. Blenderを再起動
-  4. パイプラインを再実行
+素体メッシュ生成 → リグ付け → ディテール → アニメーション → エクスポートを一度に:
 
-### パスの問題
-- エラーメッセージ: `No such file or directory`
-- 解決策: 
-  1. `build_tsumugi.sh` 内のパスが正しいことを確認
-  2. 必要なディレクトリが存在することを確認
 ```bash
-mkdir -p tsumugi_blender_pipeline/models
-mkdir -p tsumugi_blender_pipeline/assets/fbx
-mkdir -p tsumugi_blender_pipeline/assets/glb
+blender --background --python scripts/pipeline.py -- \
+  --model    models/base_humanoid.blend \
+  --height   1.58 \
+  --detail \
+  --char_prefix Tsumugi \
+  --fbx      assets/fbx/tsumugi.fbx \
+  --glb      assets/glb/tsumugi.glb
 ```
+
+各ステップのみ実行したい場合は、対応スクリプトを個別に呼び出してください。
+
+## よくあるトラブルシュート
+- Git LFS 設定: `git lfs track "*.blend"` が正しく動作しているか `git lfs ls-files` で確認
+- Blender バージョン不一致: 4.4.3 以外では `bpy.ops.pose.rigify_generate()` が動作しない可能性
+- Rigify エラー: Preferences→Add-ons で Rigify を有効化し、Blender を再起動
+- Meta-Rig が見つからない: --model で渡すベース .blend にジオメトリ Collection が存在するか確認
+- アクションが適用されない: Asset Browser 経由で読み込んだ motions.blend のアクション名とスクリプト内の名前が一致しているか確認
