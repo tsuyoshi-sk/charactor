@@ -1,0 +1,12 @@
+# Blender キャッシュ
+__pycache__/
+*.pyc
+
+# OS固有
+.DS_Store
+Thumbs.db
+
+# ビルド出力
+assets/fbx/
+assets/glb/
+models/*.blend  # 必要に応じて
