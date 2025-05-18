@@ -1,0 +1,25 @@
+{
+  "prefix": "Character",
+  "height": 1.65,
+  "detail": true,
+  "motions": ["Idle", "Walk", "Run", "Jump", "Shoot"],
+  "export": {
+    "fbx": "assets/fbx/character.fbx",
+    "glb": "assets/glb/character.glb"
+  },
+  "control_bones": {
+    "torso": ["chest_main_FK", "spine_fk.003", "spine_fk.002", "spine_fk.001"],
+    "arm_l": ["upper_arm_fk.L", "forearm_fk.L"],
+    "arm_r": ["upper_arm_fk.R", "forearm_fk.R"],
+    "leg_l": ["thigh_fk.L", "shin_fk.L"],
+    "leg_r": ["thigh_fk.R", "shin_fk.R"]
+  },
+  "materials": {
+    "body": "Base_Skin",
+    "hair": "Base_Hair", 
+    "cloth": "Base_Cloth"
+  },
+  "shape_keys": {
+    "face": ["Smile", "Anger", "Surprise", "Sad"]
+  }
+}

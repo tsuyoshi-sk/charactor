@@ -3,13 +3,13 @@
 ## プロジェクト概要
 
 このリポジトリは、Blender を用いたキャラクターパイプラインの自動化を目的としています。
-- ベースメッシュ生成 (gen_base.py)
+- ベースメッシュ生成 (create_base.py)
 - メタリグ追加 → Rigify リグ生成 (pipeline.py + rigging.py)
-- ディテール追加 (gen_detail.py)
+- ディテール追加 (apply_detail.py)
 - アニメーション生成 (animation.py)
 - FBX/GLB 形式でのエクスポート
 
-各ステップは CLI から実行可能で、一度セットアップすれば異なる身長・体格のキャラを100体以上簡単に生成できます。
+各ステップは CLI から実行可能で、設定ファイルを変更するだけで異なる身長・体格のキャラクターを効率的に生成できます。
 
 ## ディレクトリ構成
 
@@ -17,29 +17,36 @@
 charactor/
 ├── .gitignore
 ├── .gitattributes
-├── base_assets/          # 素体・マテリアル・モーションなどの共通アセット
+├── base_assets/          # 共通アセット (.blend) を格納
 │   ├── meta_rigs/        # Meta-Rig プリセット (Human, Bird...)
 │   ├── motions/          # Idle, Walk, Run などアクションテンプレート
-│   └── ...               # その他のアセット (マテリアル、シェイプキーなど)
+│   ├── shapekeys/        # 表情プリセット
+│   ├── weight_presets/   # ウェイトペイントプリセット
+│   ├── materials/        # 材質プリセット
+│   ├── clothing/         # 衣装モデル
+│   └── hair/             # ヘアモデル
 ├── blender_pipeline/     # 汎用パイプライン
 │   ├── scripts/          # 全キャラ共通のスクリプト群
-│   │   ├── pipeline.py   # メインパイプライン実行スクリプト
-│   │   ├── gen_base.py   # 素体メッシュ生成スクリプト
+│   │   ├── pipeline.py   # パイプライン実行用メインスクリプト
+│   │   ├── create_base.py # 素体メッシュ生成
+│   │   ├── apply_detail.py # ディテール付与
+│   │   ├── setup_model.py # 高さ調整など
 │   │   ├── rigging.py    # Rigify リグ生成
-│   │   ├── animation.py  # アニメーション生成
-│   │   └── model_setup.py # 高さ調整など共通処理
+│   │   └── animation.py  # アニメーション生成
 │   └── utils.py          # 共通ユーティリティ関数
 ├── characters/           # キャラごとの設定とオーバーライド
 │   ├── tsumugi/          # つむぎキャラクター
-│   │   ├── models/       # tsumugi専用の.blend
-│   │   ├── assets/       # 出力 FBX/GLB
-│   │   ├── config.json   # キャラ固有のパラメータ
-│   │   └── overrides/    # 必要なら特殊スクリプトなど
-│   └── other_char/...    # 他のキャラクター
+│   │   ├── models/       # つむぎ専用の.blend
+│   │   ├── assets/       # 出力FBX/GLB保存先
+│   │   │   ├── fbx/      # FBX形式出力
+│   │   │   └── glb/      # GLB形式出力
+│   │   ├── logs/         # ビルドログ
+│   │   └── config.json   # キャラ固有設定
+│   └── config.sample.json # 設定ファイルのサンプル
 ├── docs/                 # ドキュメント
 │   └── blender-cli.md    # Blender CLI サンプル
-├── build_character.sh    # キャラクター生成実行スクリプト
-└── init_base_assets.py   # リポジトリ初回セットアップ用
+├── build_character.sh     # キャラクタービルド用スクリプト
+└── init_base_assets.py    # リポジトリ初回セットアップ用
 ```
 
 ## 環境セットアップ
