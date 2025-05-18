@@ -1,5 +1,47 @@
 # Charactor - サッカー育成美少女ゲームキャラクター制作パイプライン
 
+## プロジェクト概要
+
+このリポジトリは、Blender を用いたキャラクターパイプラインの自動化を目的としています。
+- ベースメッシュ生成 (gen_base.py)
+- メタリグ追加 → Rigify リグ生成 (pipeline.py + rigging.py)
+- ディテール追加 (gen_detail.py)
+- アニメーション生成 (animation.py)
+- FBX/GLB 形式でのエクスポート
+
+各ステップは CLI から実行可能で、一度セットアップすれば異なる身長・体格のキャラを100体以上簡単に生成できます。
+
+## ディレクトリ構成
+
+```
+charactor/
+├── .gitignore
+├── .gitattributes
+├── base_assets/          # 素体・マテリアル・モーションなどの共通アセット
+│   ├── meta_rigs/        # Meta-Rig プリセット (Human, Bird...)
+│   ├── motions/          # Idle, Walk, Run などアクションテンプレート
+│   └── ...               # その他のアセット (マテリアル、シェイプキーなど)
+├── blender_pipeline/     # 汎用パイプライン
+│   ├── scripts/          # 全キャラ共通のスクリプト群
+│   │   ├── pipeline.py   # メインパイプライン実行スクリプト
+│   │   ├── gen_base.py   # 素体メッシュ生成スクリプト
+│   │   ├── rigging.py    # Rigify リグ生成
+│   │   ├── animation.py  # アニメーション生成
+│   │   └── model_setup.py # 高さ調整など共通処理
+│   └── utils.py          # 共通ユーティリティ関数
+├── characters/           # キャラごとの設定とオーバーライド
+│   ├── tsumugi/          # つむぎキャラクター
+│   │   ├── models/       # tsumugi専用の.blend
+│   │   ├── assets/       # 出力 FBX/GLB
+│   │   ├── config.json   # キャラ固有のパラメータ
+│   │   └── overrides/    # 必要なら特殊スクリプトなど
+│   └── other_char/...    # 他のキャラクター
+├── docs/                 # ドキュメント
+│   └── blender-cli.md    # Blender CLI サンプル
+├── build_character.sh    # キャラクター生成実行スクリプト
+└── init_base_assets.py   # リポジトリ初回セットアップ用
+```
+
 ## 環境セットアップ
 
 ### リポジトリの準備
@@ -31,6 +73,47 @@ git checkout main
 - システムデフォルトのPythonで動作します
 - 必要に応じて仮想環境を作成してください
 
+## キャラクター設定
+
+各キャラクターは `characters/{キャラ名}/config.json` で設定します。
+
+```json
+{
+  "prefix": "Tsumugi",
+  "height": 1.58,
+  "detail": true,
+  "motions": ["Idle", "Walk", "Run", "Jump", "Shoot"],
+  "export": {
+    "fbx": "assets/fbx/tsumugi.fbx",
+    "glb": "assets/glb/tsumugi.glb"
+  },
+  "control_bones": {
+    "torso": ["chest_main_FK", "spine_fk.003", "spine_fk.002", "spine_fk.001"]
+  }
+}
+```
+
+## パイプライン実行
+
+キャラクター生成を実行するには、以下のコマンドを使用します：
+
+```bash
+# つむぎキャラクターを生成
+./build_character.sh --character tsumugi
+
+# アセットモーションを使用する場合
+./build_character.sh --character tsumugi --use-asset-motions
+```
+
+または、Blenderを直接実行することもできます：
+
+```bash
+blender --background --python blender_pipeline/scripts/pipeline.py -- \
+  --config characters/tsumugi/config.json \
+  --output characters/tsumugi \
+  --use_asset_motions
+```
+
 ## 各ファイルの役割
 
 ### .blendファイルの説明
@@ -43,23 +126,9 @@ git checkout main
   - 「Idle」「Walk」「Run」などのアクションが格納されています
   - Asset Browser経由で読み込めるようになっています
 
-- **tsumugi_blender_pipeline/models/base_humanoid.blend**
+- **characters/tsumugi/models/base_humanoid.blend**
   - ジオメトリ（CylinderやSphereで組んだ素体メッシュ）のみを含むシンプルなファイル
   - Rig（アーマチュア）は含まれておらず、パイプライン実行時にメタリグを追加してからRigify生成します
-
-## フォルダ構成
-```
-charactor/
-├─ base_assets/         ← アセット格納用ライブラリ .blend
-│   ├─ meta_rigs/       ← Meta-Rig（Human, Bird…）
-│   ├─ motions/         ← Idle/Walk/Run などのアクション .blend
-│   └─ …                ← 衣装・マテリアル・ウェイトなど
-├─ tsumugi_blender_pipeline/
-│   ├─ models/          ← ベース & リグ済み .blend
-│   ├─ assets/          ← 出力 FBX/GLB
-│   └─ scripts/         ← pipeline.py, animation.py など
-└─ README.md, .gitignore, .gitattributes
-```
 
 ## 初回動作チェック手順
 
@@ -80,24 +149,13 @@ blender base_assets/motions/motions.blend
 
 3. パイプラインの実行
 ```bash
-# Ubuntuの場合
-cd tsumugi_blender_pipeline
-chmod +x build_tsumugi.sh
-./build_tsumugi.sh
-
-# macOSの場合
-cd tsumugi_blender_pipeline
-chmod +x build_tsumugi.sh
-./build_tsumugi.sh
-
-# Windowsの場合
-cd tsumugi_blender_pipeline
-# PowerShellで以下のコマンドを実行
-# blender --background --python scripts/pipeline.py -- --model models/base_humanoid.blend --height 1.58 --fbx assets/fbx/tsumugi.fbx --glb assets/glb/tsumugi.glb
+# キャラクター生成を実行
+chmod +x build_character.sh
+./build_character.sh --character tsumugi
 ```
 
 4. 結果の確認
-- `tsumugi_blender_pipeline/assets/fbx/tsumugi.fbx` と `tsumugi_blender_pipeline/assets/glb/tsumugi.glb` が生成されていることを確認
+- `characters/tsumugi/assets/fbx/tsumugi.fbx` と `characters/tsumugi/assets/glb/tsumugi.glb` が生成されていることを確認
 
 ## よくあるトラブルシュート
 
@@ -115,7 +173,7 @@ git lfs pull
 
 ### Blenderのバージョン不一致
 - エラーメッセージ: `Blender version must be at least 4.4.3`
-- 解決策: Blender 4.4.3 をインストールして、`build_tsumugi.sh` 内の `BLENDER_BIN` パスを正しく設定
+- 解決策: Blender 4.4.3 をインストールして、`build_character.sh` 内の `BLENDER_BIN` パスを正しく設定
 
 ### bpy.ops.pose.rigify_generate() エラー
 - エラーメッセージ: `Rigify生成エラー: AttributeError: 'Operator' object has no attribute 'generate'`
@@ -128,10 +186,17 @@ git lfs pull
 ### パスの問題
 - エラーメッセージ: `No such file or directory`
 - 解決策: 
-  1. `build_tsumugi.sh` 内のパスが正しいことを確認
+  1. `build_character.sh` 内のパスが正しいことを確認
   2. 必要なディレクトリが存在することを確認
 ```bash
-mkdir -p tsumugi_blender_pipeline/models
-mkdir -p tsumugi_blender_pipeline/assets/fbx
-mkdir -p tsumugi_blender_pipeline/assets/glb
+mkdir -p characters/tsumugi/models
+mkdir -p characters/tsumugi/assets/fbx
+mkdir -p characters/tsumugi/assets/glb
 ```
+
+### コントロールボーン未検出
+- エラーメッセージ: `⚠ コントロールボーン未検出: 候補 [...] はリグに存在しません。`
+- 解決策:
+  1. config.json の control_bones 設定を確認
+  2. リグに存在するボーン名を指定しているか確認
+  3. animation.py の torso_candidates リストを確認
