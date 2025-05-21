@@ -1,0 +1,32 @@
+name: キャラクタービルドテスト
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      
+      - name: Blenderのセットアップ
+        run: |
+          curl -L https://download.blender.org/release/Blender4.4/blender-4.4.3-linux-x64.tar.xz -o blender.tar.xz
+          tar -xf blender.tar.xz
+          mv blender-4.4.3-linux-x64 blender
+          echo "$PWD/blender" >> $GITHUB_PATH
+      
+      - name: 依存関係のインストール
+        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev xvfb
+      
+      - name: Rigifyアドオンの有効化
+        run: blender --background --python-expr "import bpy; bpy.ops.preferences.addon_enable(module='rigify'); bpy.ops.wm.save_userpref()"
+      
+      - name: ドライランによるビルドテスト
+        run: |
+          xvfb-run -a ./build_character.sh --character tsumugi --dry-run

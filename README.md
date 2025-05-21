@@ -207,3 +207,21 @@ mkdir -p characters/tsumugi/assets/glb
   1. config.json の control_bones 設定を確認
   2. リグに存在するボーン名を指定しているか確認
   3. animation.py の torso_candidates リストを確認
+
+## CI/自動テスト
+
+このリポジトリにはGitHub Actionsによる自動テストが設定されています：
+
+- プッシュ時およびPRのタイミングでキャラクタービルドのドライランが実行されます
+- テストではBlender 4.4.3環境が自動的にセットアップされます
+- Rigifyアドオンが有効化され、ビルドスクリプトが実行されます
+
+手動でCIテストを実行するには：
+
+```bash
+# ドライランモードでビルドをテスト
+./build_character.sh --character tsumugi --dry-run
+```
+
+テスト結果は以下のディレクトリに保存されます：
+- `characters/{キャラ名}/logs/build_*.log`

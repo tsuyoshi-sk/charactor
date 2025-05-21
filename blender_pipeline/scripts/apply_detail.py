@@ -32,14 +32,21 @@ def apply_to_collection(char_prefix, config_path=None):
     # 設定ファイルパス
     if config_path is None:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        config_path = os.path.join(base_dir, 'detail_config.json')
+        config_path = os.path.join(base_dir, 'characters', char_prefix, 'config.json')
     # JSON読み込み
     with open(config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
-    if char_prefix not in config:
-        raise KeyError(f"設定に '{char_prefix}' がありません。detail_config.json を確認してください。")
-    settings = config[char_prefix]
+    if 'detail_config' in config:
+        if char_prefix in config['detail_config']:
+            settings = config['detail_config'][char_prefix]
+        else:
+            raise KeyError(f"設定の detail_config セクションに '{char_prefix}' がありません。config.json を確認してください。")
+    elif char_prefix in config:
+        settings = config[char_prefix]
+    else:
+        raise KeyError(f"設定に '{char_prefix}' がありません。config.json を確認してください。")
+    
     bv = settings.get('bevel', {})
     dp = settings.get('displace', {})
 
