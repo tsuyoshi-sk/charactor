@@ -9,7 +9,8 @@ unset PYTHONHOME PYTHONPATH
 echo "🚀 Tsumugiのビルドを開始します..."
 echo "📅 開始時刻: $(date '+%Y-%m-%d %H:%M:%S')"
 
-"$REPO_ROOT/build_character.sh" --character Tsumugi
+"$REPO_ROOT/build_character.sh" --character Tsumugi \
+    --motion-script "$REPO_ROOT/blender_pipeline/motion_scripts/basic_motions.py"
 
 echo "✅ ビルド完了：$BASE/assets/fbx/tsumugi.fbx と $BASE/assets/glb/tsumugi.glb"
 echo "📅 終了時刻: $(date '+%Y-%m-%d %H:%M:%S')"

@@ -8,25 +8,28 @@ unset PYTHONHOME PYTHONPATH
 CHARACTER=""
 USE_ASSET_MOTIONS=false
 DRY_RUN=false
+MOTION_SCRIPT=""
 
 # --- 引数パース ---
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --character|-c)
       CHARACTER="$2"; shift 2;;
-    --use_asset_motions)
+    --use-asset-motions|--use_asset_motions)
       USE_ASSET_MOTIONS=true; shift;;
     --dry-run)
       DRY_RUN=true; shift;;
     --log_level)
       LOG_LEVEL="$2"; shift 2;;
+    --motion-script)
+      MOTION_SCRIPT="$2"; shift 2;;
     *)
       echo "Unknown arg: $1"; exit 1;;
   esac
 done
 
 if [[ -z "$CHARACTER" ]]; then
-  echo "Usage: $0 --character <Name> [--use_asset_motions] [--dry-run] [--log_level INFO|DEBUG]"
+  echo "Usage: $0 --character <Name> [--use-asset-motions] [--motion-script PATH] [--dry-run] [--log_level INFO|DEBUG]"
   exit 1
 fi
 
@@ -40,9 +43,12 @@ BLENDER_ARGS=(--background --python "${BASE}/blender_pipeline/scripts/pipeline.p
   --config   "$CONFIG" \
   --log_level "${LOG_LEVEL:-INFO}")
 
-# --use_asset_motions を付ける
-if [[ "$USE_ASSET_MOTIONS" == "true" ]]; then
+if [[ -n "$MOTION_SCRIPT" ]]; then
+  BLENDER_ARGS+=(--motion_script "$MOTION_SCRIPT")
+  echo "✓ モーション生成スクリプトを使用: $MOTION_SCRIPT"
+elif [[ "$USE_ASSET_MOTIONS" == "true" ]]; then
   BLENDER_ARGS+=(--use_asset_motions)
+  echo "✓ Asset Browserからモーションを読み込みます"
 fi
 
 # dry-run なら Blender 実行をスキップ

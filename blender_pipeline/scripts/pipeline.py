@@ -18,6 +18,7 @@ def parse_args():
     parser.add_argument('--config', type=str, required=True, help='キャラ固有設定JSONパス')
     parser.add_argument('--output', type=str, help='出力ディレクトリ')
     parser.add_argument('--use_asset_motions', action='store_true', help='Asset Browserからモーションを読み込む')
+    parser.add_argument('--motion_script', type=str, help='モーション生成用Pythonスクリプトのパス')
     parser.add_argument('--log_level', type=str, choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'], default='INFO', 
                         help='ログレベル (DEBUG/INFO/WARNING/ERROR)')
     args, _ = parser.parse_known_args(sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else [])
@@ -177,14 +178,43 @@ def main():
         
         # 7. アニメーション生成
         try:
-            from animation import do_animation
+            rig = get_rig_object()
+            if not rig:
+                raise ValueError("アニメーション用リグが見つかりません。")
             
-            if args.use_asset_motions:
-                motions_path = os.path.join(os.path.dirname(BASE_DIR), 'base_assets', 'motions', 'motions.blend')
-                log("INFO", f"✓ アセットモーションを使用: {motions_path}")
-                do_animation(motions=motions, use_asset_motions=True, motions_path=motions_path)
+            if args.motion_script:
+                try:
+                    import importlib.util
+                    import pathlib
+                    
+                    motion_script_path = pathlib.Path(args.motion_script).resolve()
+                    log("INFO", f"✓ モーションスクリプトを読み込みます: {motion_script_path}")
+                    
+                    spec = importlib.util.spec_from_file_location(motion_script_path.stem, motion_script_path)
+                    if not spec:
+                        raise ImportError(f"モーションスクリプト '{motion_script_path}' の仕様を取得できませんでした。")
+                    
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
+                    
+                    if hasattr(module, 'generate'):
+                        module.generate(rig, cfg)
+                        log("INFO", f"✓ モーション生成スクリプト実行完了: {motion_script_path}")
+                    else:
+                        raise AttributeError(f"モーションスクリプト '{motion_script_path}' に generate(rig, cfg) 関数がありません。")
+                except Exception as e:
+                    log("ERROR", f"⚠ モーションスクリプトの実行に失敗しました: {e}")
+                    log("ERROR", traceback.format_exc())
+                    raise
             else:
-                do_animation(motions=motions)
+                from animation import do_animation
+                
+                if args.use_asset_motions:
+                    motions_path = os.path.join(os.path.dirname(BASE_DIR), 'base_assets', 'motions', 'motions.blend')
+                    log("INFO", f"✓ アセットモーションを使用: {motions_path}")
+                    do_animation(motions=motions, use_asset_motions=True, motions_path=motions_path)
+                else:
+                    do_animation(motions=motions)
             
             log("INFO", "✓ アニメーション生成完了")
         except Exception as e:
