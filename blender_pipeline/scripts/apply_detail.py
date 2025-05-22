@@ -7,8 +7,9 @@ def load_detail_config(char_prefix):
     # apply_detail.py は blender_pipeline/scripts 内にあるため、3階層上がリポジトリルート
     repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     
-    # キャラクターフォルダ内の config.json を優先
-    candidate_config_path = os.path.join(repo_root, 'characters', char_prefix, 'config.json')
+    # キャラクターフォルダ内の config.json を優先（小文字のディレクトリ名を使用）
+    char_dir = char_prefix.lower()  # ディレクトリ名は小文字に統一
+    candidate_config_path = os.path.join(repo_root, 'characters', char_dir, 'config.json')
     
     cfg = None
     config_source_path = None
