@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from utils import cleanup_scene, detect_mesh_collection, get_rig_object, find_control_bone, load_asset_library
+from utils import cleanup_scene, detect_mesh_collection, get_rig_object, find_control_bone, load_asset_library, parent_meshes_to_rig
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -175,6 +175,16 @@ def main():
         except Exception as e:
             log("ERROR", f"⚠ リギング処理に失敗しました: {e}")
             raise
+        
+        try:
+            rig = get_rig_object()
+            if not rig:
+                raise ValueError("リグが見つかりません。親子付けをスキップします。")
+            
+            mesh_count = parent_meshes_to_rig(rig)
+            log("INFO", f"✓ {mesh_count}個のメッシュをリグに親子付け完了")
+        except Exception as e:
+            log("ERROR", f"⚠ メッシュの親子付けに失敗しました: {e}")
         
         # 7. アニメーション生成
         try:

@@ -95,3 +95,32 @@ def load_asset_library(library_path):
         print(f"⚠ アセットライブラリの追加に失敗しました: {e}")
         
     return False
+
+
+def parent_meshes_to_rig(rig_obj):
+    """
+    シーン内のメッシュオブジェクトをリグに親子付けし、アーマチュアモディファイアを追加する
+    
+    Args:
+        rig_obj: Rigifyで生成されたリグオブジェクト
+    
+    Returns:
+        int: 親子付けされたメッシュの数
+    """
+    if not rig_obj or rig_obj.type != 'ARMATURE':
+        print(f"⚠ 有効なリグが提供されていません。親子付けをスキップします。")
+        return 0
+    
+    mesh_count = 0
+    for obj in bpy.context.scene.objects:
+        if obj.type == 'MESH':
+            mod = obj.modifiers.new(name="Armature", type='ARMATURE')
+            mod.object = rig_obj
+            
+            obj.parent = rig_obj
+            obj.parent_type = 'OBJECT'
+            
+            mesh_count += 1
+            print(f"✓ メッシュ '{obj.name}' をリグ '{rig_obj.name}' に親子付けしました。")
+    
+    return mesh_count
