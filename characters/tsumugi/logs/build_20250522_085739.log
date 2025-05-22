@@ -1,0 +1,16 @@
+==========================================
+🚀 キャラクタービルド開始: Tsumugi
+📅 開始時刻: 2025-05-22 08:57:39
+==========================================
+✓ キャラクター 'Tsumugi' のパイプラインを実行します...
+✓ 設定ファイル: /Users/sakai/gamebuild/charactor/characters/Tsumugi/config.json
+✓ ドライラン: Blender処理をスキップします
+==========================================
+✅ パイプライン実行完了: Tsumugi
+⏱️ 所要時間: 0分 0秒
+🗂️ 出力ファイル:
+   - モデル: /Users/sakai/gamebuild/charactor/characters/Tsumugi/models/Tsumugi_animated.blend
+   - FBX: /Users/sakai/gamebuild/charactor/characters/Tsumugi/assets/fbx/Tsumugi.fbx
+   - GLB: /Users/sakai/gamebuild/charactor/characters/Tsumugi/assets/glb/Tsumugi.glb
+   - ログ: /Users/sakai/gamebuild/charactor/characters/Tsumugi/logs/build_20250522_085739.log
+==========================================

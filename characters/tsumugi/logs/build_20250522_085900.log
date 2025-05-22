@@ -1,0 +1,48 @@
+==========================================
+🚀 キャラクタービルド開始: Tsumugi
+📅 開始時刻: 2025-05-22 08:59:00
+==========================================
+✓ キャラクター 'Tsumugi' のパイプラインを実行します...
+✓ 設定ファイル: /Users/sakai/gamebuild/charactor/characters/Tsumugi/config.json
+WARN (translation.language): source/blender/blentranslation/intern/blt_lang.cc:72 fill_locales: 'locale' data path for translations not found
+blf_load_font_default: 'fonts' data path not found for 'Inter.woff2', will not be able to display text
+blf_load_font_default: 'fonts' data path not found for 'DejaVuSansMono.woff2', will not be able to display text
+blf_load_font_default: 'fonts' data path not found for 'DejaVuSansMono.woff2', will not be able to display text
+blf_load_font_default: 'fonts' data path not found for 'Inter.woff2', will not be able to display text
+blf_load_font_default: 'fonts' data path not found for 'DejaVuSansMono.woff2', will not be able to display text
+Font data directory "fonts/" could not be detected!
+Bundled Python not found and is expected on this platform (the 'install' target may have not been built)
+Python path configuration:
+  PYTHONHOME = (not set)
+  PYTHONPATH = (not set)
+  program name = '/usr/local/bin/blender'
+  isolated = 1
+  environment = 0
+  user site = 0
+  safe_path = 1
+  import site = 1
+  is in build tree = 0
+  stdlib dir = '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python/lib/python3.11'
+  sys._base_executable = '/Users/sakai/.pyenv/shims/python'
+  sys.base_prefix = '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python'
+  sys.base_exec_prefix = '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python'
+  sys.platlibdir = 'lib'
+  sys.executable = '/Users/sakai/.pyenv/shims/python'
+  sys.prefix = '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python'
+  sys.exec_prefix = '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python'
+  sys.path = [
+    '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python/lib/python311.zip',
+    '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python/lib/python3.11',
+    '/Users/jonas/blender-dev-deps/build_darwin/deps_arm64/Release/python/lib/python3.11/lib-dynload',
+  ]
+Internal error initializing Python!
+Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding
+Python runtime state: core initialized
+Blender 4.4.3 (hash 802179c51ccc built 2025-04-29 14:25:11)
+Color management: Using fallback mode for management
+Color management: scene view "AgX" not found, setting default "Standard".
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00000001fa228c80 (most recent call first):
+  <no Python frame>
+❌ エラー: パイプライン実行に失敗しました

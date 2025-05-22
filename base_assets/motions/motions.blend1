@@ -1,0 +1,5 @@
+# This is a placeholder for the Blender file
+# In a real implementation, this would be a binary .blend file
+# containing Idle, Walk, Run, Jump, Shoot, Die, Celebrate, Crouch actions
+# Each action would be at least 60 frames and loopable
+# All actions would be tagged in Asset Browser under "Motions/Basic" category
